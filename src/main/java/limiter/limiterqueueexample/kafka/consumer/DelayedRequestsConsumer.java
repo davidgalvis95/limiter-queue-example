@@ -14,11 +14,8 @@ import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.LocalTime;
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-
-import static limiter.limiterqueueexample.config.KafkaDelayedRequestsConfig.DELAYED_REQUESTS_TOPIC;
 
 @Slf4j
 @Component
@@ -46,16 +43,7 @@ public class DelayedRequestsConsumer {
     public void onMessage() {
         CompletableFuture.runAsync(() -> {
             try {
-                consumer.subscribe(List.of(DELAYED_REQUESTS_TOPIC));
-                while (true) {
-                    if (metrics.getNanosToWait() <= 0) {
-                        final ConsumerRecords<String, String> consumerRecords = consumer.poll(Duration.ofMillis(kafkaPollingDuration));
-                        for (final ConsumerRecord<String, String> consumerRecord : consumerRecords) {
-                            log.info("RESENDING REQUEST -> id: " + consumerRecord.key() + ", value: " + consumerRecord.value() + ", timestamp: " + LocalTime.now());
-                            serviceRateLimiter.sendRequest(UUID.fromString(consumerRecord.key()), consumerRecord.value());
-                        }
-                    }
-                }
+                consume();
             } catch (final WakeupException e) {
                 log.info("Wake up exception");
             } catch (final Exception e) {
@@ -65,5 +53,17 @@ public class DelayedRequestsConsumer {
                 log.info("DelayedRequestsConsumer has been closed");
             }
         });
+    }
+
+    private void consume(){
+        while (true) {
+            if (metrics.getNanosToWait() <= 0) {
+                final ConsumerRecords<String, String> consumerRecords = consumer.poll(Duration.ofMillis(kafkaPollingDuration));
+                for (final ConsumerRecord<String, String> consumerRecord : consumerRecords) {
+                    log.info("RESENDING REQUEST -> id: " + consumerRecord.key() + ", value: " + consumerRecord.value() + ", timestamp: " + LocalTime.now());
+                    serviceRateLimiter.sendRequest(UUID.fromString(consumerRecord.key()), consumerRecord.value());
+                }
+            }
+        }
     }
 }

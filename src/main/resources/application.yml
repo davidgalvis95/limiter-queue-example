@@ -8,6 +8,7 @@ spring:
       autoOffsetReset: latest
       keyDeserializer: org.apache.kafka.common.serialization.StringDeserializer
       valueDeserializer: org.apache.kafka.common.serialization.StringDeserializer
+      maxPollRecords: 5
       pollingDuration: 100
     producer:
       bootstrap-servers: localhost:9093, localhost:9092
@@ -21,3 +22,10 @@ management:
   endpoint:
     health:
       show-details: always
+
+ratelimiter:
+    limitForPeriod: 5
+    limitRefreshPeriod: 10000
+    timeoutDuration: 0
+    registerHealthIndicator: true
+    eventConsumerBufferSize: 100

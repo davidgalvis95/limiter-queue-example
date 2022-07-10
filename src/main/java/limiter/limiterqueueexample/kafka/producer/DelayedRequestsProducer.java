@@ -26,10 +26,8 @@ public class DelayedRequestsProducer {
 
     public void sendMessage(final UUID key, final String value) {
 
-        ProducerRecord<String, String> producerRecord = buildProducerRecord(key.toString(), value, DELAYED_REQUESTS_TOPIC);
-
-        ListenableFuture<SendResult<String,String>> listenableFuture =  kafkaTemplate.send(producerRecord);
-
+        final ProducerRecord<String, String> producerRecord = buildProducerRecord(key.toString(), value, DELAYED_REQUESTS_TOPIC);
+        final ListenableFuture<SendResult<String,String>> listenableFuture =  kafkaTemplate.send(producerRecord);
         listenableFuture.addCallback(new ListenableFutureCallback<>() {
             @Override
             public void onFailure(Throwable ex) {
@@ -41,29 +39,23 @@ public class DelayedRequestsProducer {
                 handleSuccess(key, value, result);
             }
         });
-//        this.kafkaTemplate.send(DELAYED_REQUESTS_TOPIC, message);
     }
 
-    private ProducerRecord<String, String> buildProducerRecord(String key, String value, String topic) {
-
-
-        List<Header> recordHeaders = List.of(new RecordHeader("event-source", "scanner".getBytes()));
-
+    private ProducerRecord<String, String> buildProducerRecord(final String key, final String value, final String topic) {
+        final List<Header> recordHeaders = List.of(new RecordHeader("event-source", "scanner".getBytes()));
         return new ProducerRecord<>(topic, null, key, value, recordHeaders);
     }
 
-    private void handleFailure(UUID key, String value, Throwable ex) {
+    private void handleFailure(final UUID key, final String value, final Throwable ex) {
         log.error("Error Sending the Message and the exception is {}", ex.getMessage());
         try {
             throw ex;
         } catch (Throwable throwable) {
             log.error("Error in OnFailure: {}", throwable.getMessage());
         }
-
-
     }
 
-    private void handleSuccess(UUID key, String value, SendResult<String, String> result) {
+    private void handleSuccess(final UUID key, final String value, final SendResult<String, String> result) {
 //        log.info("Message Sent SuccessFully for the key : {} and the value is {} , partition is {}", key, value, result.getRecordMetadata().partition());
     }
 }
