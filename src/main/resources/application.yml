@@ -3,11 +3,12 @@ spring:
     listener:
       ack-mode: manual
     consumer:
-      bootstrap-servers: localhost:9093, localhost:9092
-      group-id: group_id
-      auto-offset-reset: latest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      bootstrapServers: localhost:9093, localhost:9092
+      groupId: group_id
+      autoOffsetReset: latest
+      keyDeserializer: org.apache.kafka.common.serialization.StringDeserializer
+      valueDeserializer: org.apache.kafka.common.serialization.StringDeserializer
+      pollingDuration: 100
     producer:
       bootstrap-servers: localhost:9093, localhost:9092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer

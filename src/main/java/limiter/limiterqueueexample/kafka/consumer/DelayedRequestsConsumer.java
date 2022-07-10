@@ -5,66 +5,65 @@ import io.github.resilience4j.ratelimiter.internal.AtomicRateLimiter;
 import limiter.limiterqueueexample.service.ServiceRateLimiter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.common.TopicPartition;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.errors.WakeupException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.listener.AcknowledgingMessageListener;
-import org.springframework.kafka.listener.ConsumerSeekAware;
-import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.time.LocalTime;
-import java.util.Map;
+import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.CompletableFuture;
 
 import static limiter.limiterqueueexample.config.KafkaDelayedRequestsConfig.DELAYED_REQUESTS_TOPIC;
 
 @Slf4j
 @Component
-public class DelayedRequestsConsumer implements AcknowledgingMessageListener<String, String>, ConsumerSeekAware{
+public class DelayedRequestsConsumer {
 
     private final AtomicRateLimiter.AtomicRateLimiterMetrics metrics;
 
-    private AtomicLong offsetToSeekFrom = new AtomicLong(-1L);
+    private final KafkaConsumer<String, String> consumer;
 
-    private ConsumerSeekAware.ConsumerSeekCallback consumerSeekCallback;
+    private final ServiceRateLimiter serviceRateLimiter;
 
-    private ServiceRateLimiter serviceRateLimiter;
+    private final Integer kafkaPollingDuration;
 
     @Autowired
-    public DelayedRequestsConsumer(final RateLimiter rateLimiter, final ServiceRateLimiter serviceRateLimiter) {
-        this.metrics = (AtomicRateLimiter.AtomicRateLimiterMetrics) rateLimiter.getMetrics();
+    public DelayedRequestsConsumer(final KafkaConsumer<String, String> manualKafkaConsumer,
+                                   final RateLimiter rateLimiter,
+                                   final ServiceRateLimiter serviceRateLimiter,
+                                   @Value("${spring.kafka.consumer.pollingDuration}") final Integer kafkaPollingDuration) {
+        this.consumer = manualKafkaConsumer;
         this.serviceRateLimiter = serviceRateLimiter;
+        this.metrics = (AtomicRateLimiter.AtomicRateLimiterMetrics) rateLimiter.getMetrics();
+        this.kafkaPollingDuration = kafkaPollingDuration;
     }
 
-    @Override
-    @KafkaListener(topics = DELAYED_REQUESTS_TOPIC, groupId = "group_id")
-    public void onMessage(ConsumerRecord<String, String> consumerRecord, Acknowledgment acknowledgment) {
-        if(metrics.getNanosToWait() <= 0) {
-            log.info("RESENDING REQUEST -> id: " + consumerRecord.key() + ", value: " +  consumerRecord.value() + ", timestamp: " + LocalTime.now());
-            serviceRateLimiter.sendRequest(UUID.fromString(consumerRecord.key()), consumerRecord.value());
-            acknowledgment.acknowledge();
-        }else {
-            if(offsetToSeekFrom.get() != -1L) {
-                offsetToSeekFrom = new AtomicLong(consumerRecord.offset());
-            }else {
-                offsetToSeekFrom = new AtomicLong(-1L);
-                consumerSeekCallback.seekRelative(DELAYED_REQUESTS_TOPIC, consumerRecord.partition(), offsetToSeekFrom.get(), true);
+    public void onMessage() {
+        CompletableFuture.runAsync(() -> {
+            try {
+                consumer.subscribe(List.of(DELAYED_REQUESTS_TOPIC));
+                while (true) {
+                    if (metrics.getNanosToWait() <= 0) {
+                        final ConsumerRecords<String, String> consumerRecords = consumer.poll(Duration.ofMillis(kafkaPollingDuration));
+                        for (final ConsumerRecord<String, String> consumerRecord : consumerRecords) {
+                            log.info("RESENDING REQUEST -> id: " + consumerRecord.key() + ", value: " + consumerRecord.value() + ", timestamp: " + LocalTime.now());
+                            serviceRateLimiter.sendRequest(UUID.fromString(consumerRecord.key()), consumerRecord.value());
+                        }
+                    }
+                }
+            } catch (final WakeupException e) {
+                log.info("Wake up exception");
+            } catch (final Exception e) {
+                log.error("Unexpected exception", e);
+            } finally {
+                consumer.close();
+                log.info("DelayedRequestsConsumer has been closed");
             }
-        }
-    }
-
-    @Override
-    public void registerSeekCallback(final ConsumerSeekCallback consumerSeekCallback) {
-        this.consumerSeekCallback = consumerSeekCallback;
-    }
-
-    @Override
-    public void onPartitionsAssigned(Map<TopicPartition, Long> map, ConsumerSeekCallback consumerSeekCallback) {
-    }
-
-    @Override
-    public void onIdleContainer(Map<TopicPartition, Long> map, ConsumerSeekCallback consumerSeekCallback) {
+        });
     }
 }
