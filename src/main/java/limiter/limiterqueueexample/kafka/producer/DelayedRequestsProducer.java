@@ -1,5 +1,6 @@
 package limiter.limiterqueueexample.kafka.producer;
 
+import limiter.limiterqueueexample.service.StateService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,6 +25,8 @@ import static limiter.limiterqueueexample.config.KafkaDelayedRequestsConfig.DELA
 public class DelayedRequestsProducer {
 
     private KafkaTemplate<String, String> kafkaTemplate;
+
+    private StateService stateService;
 
     public void sendMessage(final UUID key, final String value) {
 
@@ -47,7 +51,7 @@ public class DelayedRequestsProducer {
     }
 
     private void handleFailure(final UUID key, final String value, final Throwable ex) {
-        log.error("Error Sending the Message and the exception is {}", ex.getMessage());
+        log.error("Error sending the message with id: {} and value: {}, the exception is {}", key, value, ex.getMessage());
         try {
             throw ex;
         } catch (Throwable throwable) {
@@ -56,6 +60,8 @@ public class DelayedRequestsProducer {
     }
 
     private void handleSuccess(final UUID key, final String value, final SendResult<String, String> result) {
-//        log.info("Message Sent SuccessFully for the key : {} and the value is {} , partition is {}", key, value, result.getRecordMetadata().partition());
+        final int currentEnqueuedReq = stateService.increaseCurrentEnqueuedRequests();
+        log.info("Request successFully enqueued for the key: {}, value: {}, timestamp: {}, partition: {}. Enqueued requests: {}",
+                key, value, result.getRecordMetadata().partition(), LocalDateTime.now(), currentEnqueuedReq);
     }
 }
