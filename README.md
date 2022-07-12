@@ -45,7 +45,7 @@ In order to track the processing of the API, for this use case there is a file c
    to send the POST request to the running API
 
 7. Note: The application in the LimiterQueueExampleApplication, lines 42 to 44 is running a demonstration of the functionality of the application by mimicking the sending of 30 requests to the controller, and seeing how the API behaves when a real request is sent. To see the results of that, navigate to `<root directory of this application>/src/main/resources/test.txt`.
-   
-   
+
+8. Note: For the **Kafka resiliency** test, just stop the Kafka container with name "*kafka*" running on port `29092` and try starting it again, if there were messages sent to the Kafka broker that have not been consumed, the consumer will load balance and consume taking into account the last offset.
 
 Thank you!
