@@ -2,7 +2,7 @@
 
 #### Architecture Flow:
 
-[Diagram](src/main/resources/templates/diagram.png)
+![Diagram](src/main/resources/templates/diagram.png)
 
 The application basically consists of an API that receives POST requests and tries resending them to a third party postman API, but limiting them in the client side (This API), so that some of them are able to reach the destination postman API, depending on the configured environment variables. Th remaining requests are enqueued in a Kafka queue, and polled again when the API is ready to receive more requests. These polled requests will be sent in a rate that will be not greater than the capacity of the API (rate-limiter limit), so that this last one won't be overloaded. The sequence will continue until all the pending enqueued requests are equal to 0.
 
