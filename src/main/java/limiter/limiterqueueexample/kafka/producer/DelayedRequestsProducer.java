@@ -26,23 +26,14 @@ public class DelayedRequestsProducer {
 
     private KafkaTemplate<String, String> kafkaTemplate;
 
-    private StateService stateService;
+    private DelayedProducerRequestsFuture delayedProducerRequestsFuture;
 
     public void sendMessage(final UUID key, final String value) {
 
         final ProducerRecord<String, String> producerRecord = buildProducerRecord(key.toString(), value, DELAYED_REQUESTS_TOPIC);
         final ListenableFuture<SendResult<String,String>> listenableFuture =  kafkaTemplate.send(producerRecord);
-        listenableFuture.addCallback(new ListenableFutureCallback<>() {
-            @Override
-            public void onFailure(Throwable ex) {
-                handleFailure(key, value, ex);
-            }
-
-            @Override
-            public void onSuccess(SendResult<String, String> result) {
-                handleSuccess(key, value, result);
-            }
-        });
+        delayedProducerRequestsFuture.setKeyAndValue(key, value);
+        listenableFuture.addCallback(delayedProducerRequestsFuture);
     }
 
     private ProducerRecord<String, String> buildProducerRecord(final String key, final String value, final String topic) {
@@ -50,18 +41,18 @@ public class DelayedRequestsProducer {
         return new ProducerRecord<>(topic, null, key, value, recordHeaders);
     }
 
-    private void handleFailure(final UUID key, final String value, final Throwable ex) {
-        log.error("Error sending the message with id: {} and value: {}, the exception is {}", key, value, ex.getMessage());
-        try {
-            throw ex;
-        } catch (Throwable throwable) {
-            log.error("Error in OnFailure: {}", throwable.getMessage());
-        }
-    }
-
-    private void handleSuccess(final UUID key, final String value, final SendResult<String, String> result) {
-        final int currentEnqueuedReq = stateService.increaseCurrentEnqueuedRequests();
-        log.info("Request successFully enqueued for the key: {}, value: {}, timestamp: {}, partition: {}. Enqueued requests: {}",
-                key, value, result.getRecordMetadata().partition(), LocalDateTime.now(), currentEnqueuedReq);
-    }
+//    private void handleFailure(final UUID key, final String value, final Throwable ex) {
+//        log.error("Error sending the message with id: {} and value: {}, the exception is {}", key, value, ex.getMessage());
+//        try {
+//            throw ex;
+//        } catch (Throwable throwable) {
+//            log.error("Error in OnFailure: {}", throwable.getMessage());
+//        }
+//    }
+//
+//    private void handleSuccess(final UUID key, final String value, final SendResult<String, String> result) {
+//        final int currentEnqueuedReq = stateService.increaseCurrentEnqueuedRequests();
+//        log.info("Request successFully enqueued for the key: {}, value: {}, timestamp: {}, partition: {}. Enqueued requests: {}",
+//                key, value, result.getRecordMetadata().partition(), LocalDateTime.now(), currentEnqueuedReq);
+//    }
 }

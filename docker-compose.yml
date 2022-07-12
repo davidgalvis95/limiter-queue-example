@@ -9,6 +9,7 @@ services:
       - 22181:2181
 
   kafka:
+    restart: always
     image: confluentinc/cp-kafka:latest
     depends_on:
       - zookeeper

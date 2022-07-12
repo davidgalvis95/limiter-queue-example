@@ -46,20 +46,6 @@ public class KafkaDelayedRequestsConfig {
 
         final KafkaConsumer<String, String> consumer = new KafkaConsumer<>(properties);
         consumer.subscribe(List.of(topic.name()));
-        createConsumerShutdownHook(consumer);
         return consumer;
-    }
-
-    public void createConsumerShutdownHook(final KafkaConsumer<String, String> manualKafkaConsumer){
-        final Thread mainThread = Thread.currentThread();
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            log.info("Calling manualKafkaConsumer.wakeup() due to JVM shutdown");
-            manualKafkaConsumer.wakeup();
-            try {
-                mainThread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }));
     }
 }

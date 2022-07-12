@@ -3,6 +3,7 @@ package limiter.limiterqueueexample.config;
 import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
 import io.github.resilience4j.ratelimiter.internal.AtomicRateLimiter;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import java.time.Duration;
 
 @Data
+@Slf4j
 @Configuration
 @ConfigurationProperties("ratelimiter")
 public class RateLimiterConfig {

@@ -1,6 +1,5 @@
 package limiter.limiterqueueexample.service;
 
-import feign.FeignException;
 import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.ratelimiter.RequestNotPermitted;
 import io.vavr.CheckedFunction0;
@@ -11,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
 
+import java.io.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -28,6 +28,8 @@ public class PostmanEchoApiServiceImpl implements PostmanEchoApiService {
 
     private final StateService stateService;
 
+    private final File selectedMessagesFile;
+
     @Override
     public void sendRequest(final UUID id, final String value) {
         final CheckedFunction0<CompletableFuture<Pair<UUID, String>>> responseSupplier = RateLimiter.decorateCheckedSupplier(rateLimiter, () -> sendApiRequest(id, value));
@@ -37,6 +39,7 @@ public class PostmanEchoApiServiceImpl implements PostmanEchoApiService {
                         final int sentRequests = stateService.increasePostmanApiSentRequests();
                         log.info("Request allowed and sent, id: {}, value: {}, timestamp: {}. Requests sent: {}",
                                 res.getLeft(), res.getRight(), LocalDateTime.now(), sentRequests);
+                        writeToFile(res, sentRequests);
                     });
         } catch (final RequestNotPermitted e) {
             log.info("Queuing request not allowed for future resending, id: {}, value: {}, timestamp: {}", id, value, LocalDateTime.now());
@@ -51,11 +54,24 @@ public class PostmanEchoApiServiceImpl implements PostmanEchoApiService {
                 .supplyAsync(() -> {
                     log.info("Sending request, id: {}, value: {}, timestamp: {}", id, value, LocalDateTime.now());
                     try {
-                        postmanEchoApiClient.sendPostmanEchoRequest(id, value);
-                    }catch (final FeignException.NotFound e) {
-                        log.error("The api URL could not be found: 404"); //This error is expected since the endpoint always returns 404
+                        postmanEchoApiClient.sendPostmanEchoRequest();
+                    } catch (final Exception e) {
+                        throw new RuntimeException("Something went wrong");
                     }
                     return Pair.of(id, value);
                 });
+    }
+
+    private void writeToFile(final Pair<UUID, String> res, final int sentRequests) {
+        try {
+            Writer output;
+            output = new BufferedWriter(new FileWriter(selectedMessagesFile.getAbsolutePath(), true));
+            final int enqueuedRequests = stateService.getCurrentEnqueuedRequests().get();
+            output.append(String.format("id: %s, value: %s, timestamp: %s, Requests sent: %s, Enqueued requests: %s\n",
+                    res.getLeft().toString(), res.getRight(), LocalDateTime.now(), sentRequests, enqueuedRequests));
+            output.close();
+        } catch (IOException e) {
+            log.error("Error when trying to write to the file");
+        }
     }
 }

@@ -1,7 +1,12 @@
 spring:
   kafka:
+    template:
+      default-topic: test_topic
+    admin:
+      properties:
+        bootstrap.servers: localhost:29092
     consumer:
-      bootstrapServers: localhost:29092, localhost:39092
+      bootstrapServers: localhost:29092
       groupId: group_id
       autoOffsetReset: latest
       keyDeserializer: org.apache.kafka.common.serialization.StringDeserializer
@@ -9,10 +14,9 @@ spring:
       maxPollRecords: 5
       pollingDuration: 100
     producer:
-      bootstrap-servers: localhost:29092, localhost:39092
+      bootstrapServers: localhost:29092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
-    bootstrap-servers: localhost:29092
 management:
   endpoints:
     web:
@@ -33,4 +37,4 @@ postmanEchoApi:
   timeout:
     connect: 2000
     read: 25000
-  baseUrl: https://postman-echo.com
+  baseUrl: https://learning.postman.com

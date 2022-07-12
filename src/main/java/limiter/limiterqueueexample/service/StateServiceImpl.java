@@ -9,9 +9,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Component
 public class StateServiceImpl implements StateService{
 
-    private final AtomicInteger currentEnqueuedRequests = new AtomicInteger(0);
+    private AtomicInteger currentEnqueuedRequests = new AtomicInteger(0);
 
-    private final AtomicInteger postmanApiSentRequests = new AtomicInteger(0);
+    private AtomicInteger postmanApiSentRequests = new AtomicInteger(0);
+
+    public StateServiceImpl(){};
+
+    public StateServiceImpl(int initialEnqueued, int initialSent) {
+        this.currentEnqueuedRequests = new AtomicInteger(initialEnqueued);
+        this.postmanApiSentRequests = new AtomicInteger(initialSent);
+    }
 
     @Override
     public int increaseCurrentEnqueuedRequests() {
