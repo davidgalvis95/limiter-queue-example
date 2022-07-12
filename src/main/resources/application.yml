@@ -38,3 +38,6 @@ postmanEchoApi:
     connect: 2000
     read: 25000
   baseUrl: https://learning.postman.com
+
+jwt:
+  secret: secret

@@ -10,8 +10,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
-import javax.annotation.PostConstruct;
-
 @Slf4j
 @SpringBootApplication
 @EnableConfigurationProperties(KafkaDelayedRequestsConfig.class)
@@ -33,14 +31,14 @@ public class LimiterQueueExampleApplication implements CommandLineRunner {
     }
 
     /*
-     * This following block (lines 42 to 44) should be removed when trying to start the application normally
+     * This following block (lines 42 to 44) should be commented when trying to start the application normally
      * This is only for demonstration purposes, look at the src/main/java/test.txt file to take a look to the results
      * */
     @Override
     public void run(String... args) {
         delayedRequestsManualConsumer.startBySubscribing();
-        for (int i=0; i<30; i++) {
-            limiterQueueExampleController.createOrder();
-        }
+//        for (int i=0; i<30; i++) {
+//            limiterQueueExampleController.createOrder();
+//        }
     }
 }
