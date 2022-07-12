@@ -73,11 +73,15 @@ public class DelayedRequestsConsumer {
     private void consume() {
         while (keepConsuming) {
             if (metrics.getNanosToWait() <= 0) {
-                final ConsumerRecords<String, String> consumerRecords = consumer.poll(Duration.ofMillis(kafkaPollingDuration));
-                for (final ConsumerRecord<String, String> consumerRecord : consumerRecords) {
-                    this.processRecord(consumerRecord.key(), consumerRecord.value());
-                }
+                this.processRecords();
             }
+        }
+    }
+
+    public void processRecords(){
+        final ConsumerRecords<String, String> consumerRecords = consumer.poll(Duration.ofMillis(kafkaPollingDuration));
+        for (final ConsumerRecord<String, String> consumerRecord : consumerRecords) {
+            this.processRecord(consumerRecord.key(), consumerRecord.value());
         }
     }
 
