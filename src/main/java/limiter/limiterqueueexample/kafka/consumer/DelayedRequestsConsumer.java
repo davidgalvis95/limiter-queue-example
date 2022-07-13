@@ -86,9 +86,9 @@ public class DelayedRequestsConsumer {
     }
 
     public void processRecord(final String key, String value) {
-        final int currentEnqueuedReq = stateService.decreaseCurrentEnqueuedRequests();
-        log.info("Resending failed request with id: {}, value: {}, timestamp: {}. Enqueued requests {}",
-                key, value, LocalDateTime.now(), currentEnqueuedReq);
+        final int polledFromQueueRequests = stateService.increasePolledFromQueueRequests();
+        log.info("Resending failed request with id: {}, value: {}, timestamp: {}. Polled requests {}",
+                key, value, LocalDateTime.now(), polledFromQueueRequests);
         postmanEchoApiService.sendRequest(UUID.fromString(key), value);
     }
 

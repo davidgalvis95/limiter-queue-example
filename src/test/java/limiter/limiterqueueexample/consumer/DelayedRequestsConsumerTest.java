@@ -53,7 +53,7 @@ public class DelayedRequestsConsumerTest {
 
     @BeforeEach
     void setUp(){
-        stateService = new StateServiceImpl(5, 0);
+        stateService = new StateServiceImpl(0, 0, 0);
         mockConsumer = new MockConsumer<>(OffsetResetStrategy.EARLIEST);
         RateLimiter rateLimiter = buildAtomicRateLimiter();
         postmanEchoApiService = new PostmanEchoApiServiceImpl(producer, postmanEchoApiClient, rateLimiter, stateService, selectedMessagesFile);
@@ -72,7 +72,8 @@ public class DelayedRequestsConsumerTest {
         verify(producer).sendMessage(any(), eq("Request 5"));
 
         assertEquals(3, stateService.getPostmanApiSentRequests().get());
-        assertEquals(0, stateService.getCurrentEnqueuedRequests().get());
+        assertEquals(5, stateService.getCurrentPolledFromQueueRequests().get());
+        assertEquals(0, stateService.getCurrentSentToQueueRequests().get());
     }
 
     private void addTopicPartitions(final MockConsumer<String, String> mockConsumer,

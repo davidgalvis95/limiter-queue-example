@@ -42,8 +42,8 @@ public class DelayedProducerRequestsFuture implements ListenableFutureCallback<S
 
     @Override
     public void onSuccess(SendResult<String, String> result) {
-        final int currentEnqueuedReq = stateService.increaseCurrentEnqueuedRequests();
-        log.info("Request successFully enqueued for the key: {}, value: {}, timestamp: {}, partition: {}. Enqueued requests: {}",
-                key, value, LocalDateTime.now(), result.getRecordMetadata().partition(), currentEnqueuedReq);
+        final int sentToQueueRequests = stateService.increaseSentToQueueRequests();
+        log.info("Request successFully enqueued for the key: {}, value: {}, timestamp: {}, partition: {}. Requests sent to queue: {}",
+                key, value, LocalDateTime.now(), result.getRecordMetadata().partition(), sentToQueueRequests);
     }
 }

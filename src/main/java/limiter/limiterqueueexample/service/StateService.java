@@ -3,13 +3,19 @@ package limiter.limiterqueueexample.service;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public interface StateService {
-    AtomicInteger getCurrentEnqueuedRequests();
+    AtomicInteger getCurrentSentToQueueRequests();
+
+    AtomicInteger getCurrentPolledFromQueueRequests();
 
     AtomicInteger getPostmanApiSentRequests();
 
-    int increaseCurrentEnqueuedRequests();
+    int increaseSentToQueueRequests();
 
-    int decreaseCurrentEnqueuedRequests();
+    int decreaseSentToQueueRequests();
+
+    int increasePolledFromQueueRequests();
+
+    int decreasePolledFromQueueRequests();
 
     int increasePostmanApiSentRequests();
 }

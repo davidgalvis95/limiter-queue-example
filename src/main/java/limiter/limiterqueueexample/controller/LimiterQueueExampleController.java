@@ -24,7 +24,7 @@ public class LimiterQueueExampleController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> createOrder() {
+    public ResponseEntity<Void> processRequest() {
         requestCounter.incrementAndGet();
         postmanEchoApiService.sendRequest(UUID.randomUUID(), "I'm the request #" + requestCounter + " :)");
         return ResponseEntity.ok().build();

@@ -40,19 +40,4 @@ public class DelayedRequestsProducer {
         final List<Header> recordHeaders = List.of(new RecordHeader("event-source", "scanner".getBytes()));
         return new ProducerRecord<>(topic, null, key, value, recordHeaders);
     }
-
-//    private void handleFailure(final UUID key, final String value, final Throwable ex) {
-//        log.error("Error sending the message with id: {} and value: {}, the exception is {}", key, value, ex.getMessage());
-//        try {
-//            throw ex;
-//        } catch (Throwable throwable) {
-//            log.error("Error in OnFailure: {}", throwable.getMessage());
-//        }
-//    }
-//
-//    private void handleSuccess(final UUID key, final String value, final SendResult<String, String> result) {
-//        final int currentEnqueuedReq = stateService.increaseCurrentEnqueuedRequests();
-//        log.info("Request successFully enqueued for the key: {}, value: {}, timestamp: {}, partition: {}. Enqueued requests: {}",
-//                key, value, result.getRecordMetadata().partition(), LocalDateTime.now(), currentEnqueuedReq);
-//    }
 }

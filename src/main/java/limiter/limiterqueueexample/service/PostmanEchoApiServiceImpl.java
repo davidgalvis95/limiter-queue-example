@@ -66,9 +66,10 @@ public class PostmanEchoApiServiceImpl implements PostmanEchoApiService {
         try {
             Writer output;
             output = new BufferedWriter(new FileWriter(selectedMessagesFile.getAbsolutePath(), true));
-            final int enqueuedRequests = stateService.getCurrentEnqueuedRequests().get();
-            output.append(String.format("id: %s, value: %s, timestamp: %s, Requests sent: %s, Enqueued requests: %s\n",
-                    res.getLeft().toString(), res.getRight(), LocalDateTime.now(), sentRequests, enqueuedRequests));
+            final int requestsSentToQueue = stateService.getCurrentSentToQueueRequests().get();
+            final int polledRequests = stateService.getCurrentPolledFromQueueRequests().get();;
+            output.append(String.format("id: %s, value: %s, timestamp: %s, Requests sent: %s, Enqueued requests: %s, Polled requests: %s\n",
+                    res.getLeft().toString(), res.getRight(), LocalDateTime.now(), sentRequests, requestsSentToQueue, polledRequests));
             output.close();
         } catch (IOException e) {
             log.error("Error when trying to write to the file");

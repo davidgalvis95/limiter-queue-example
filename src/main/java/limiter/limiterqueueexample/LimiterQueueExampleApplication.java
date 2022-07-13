@@ -9,6 +9,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.security.access.prepost.PostAuthorize;
 
 @Slf4j
 @SpringBootApplication
@@ -37,8 +38,8 @@ public class LimiterQueueExampleApplication implements CommandLineRunner {
     @Override
     public void run(String... args) {
         delayedRequestsManualConsumer.startBySubscribing();
-//        for (int i=0; i<30; i++) {
-//            limiterQueueExampleController.createOrder();
-//        }
+        for (int i=0; i<30; i++) {
+            limiterQueueExampleController.processRequest();
+        }
     }
 }
