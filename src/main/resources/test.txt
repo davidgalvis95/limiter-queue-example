@@ -1,9 +1,0 @@
-id: d2f8571a-259f-4322-995e-1613b186fd82, value: I'm the request #1 :), timestamp: 2022-07-12T21:57:38.269072, Requests sent: 1, Enqueued requests: 0, Polled requests: 0
-id: e541a7f9-fa5f-4495-ac3e-0f0901c7c8d8, value: I'm the request #2 :), timestamp: 2022-07-12T21:57:40.060467, Requests sent: 2, Enqueued requests: 0, Polled requests: 0
-id: b81b5ddd-e4a3-47b6-959a-4b7fcf23d45a, value: I'm the request #3 :), timestamp: 2022-07-12T21:57:41.038624, Requests sent: 3, Enqueued requests: 0, Polled requests: 0
-id: ccd30af3-d1ec-4e48-b53f-b0d01ffd6087, value: I'm the request #4 :), timestamp: 2022-07-12T21:57:41.748666, Requests sent: 4, Enqueued requests: 0, Polled requests: 0
-id: 9609be1f-60f7-4827-9f28-88e4ddefb084, value: I'm the request #5 :), timestamp: 2022-07-12T21:57:42.525872, Requests sent: 5, Enqueued requests: 0, Polled requests: 0
-id: a0820002-2f87-4647-97e2-fd34170ea92a, value: I'm the request #6 :), timestamp: 2022-07-12T21:57:43.200548, Requests sent: 6, Enqueued requests: 0, Polled requests: 0
-id: 73c66444-61c0-46f4-bcff-5b79799a740d, value: I'm the request #7 :), timestamp: 2022-07-12T21:57:43.905450, Requests sent: 7, Enqueued requests: 0, Polled requests: 0
-id: 7c6e24c7-8327-4abf-a1ac-8629f54a930f, value: I'm the request #8 :), timestamp: 2022-07-12T21:57:44.819913, Requests sent: 8, Enqueued requests: 0, Polled requests: 0
-id: d72231af-c440-4959-b6ff-1b402e00aed0, value: I'm the request #9 :), timestamp: 2022-07-12T21:57:51.126493, Requests sent: 9, Enqueued requests: 1, Polled requests: 1

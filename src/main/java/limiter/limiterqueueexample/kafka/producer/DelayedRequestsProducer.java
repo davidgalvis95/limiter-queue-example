@@ -1,6 +1,5 @@
 package limiter.limiterqueueexample.kafka.producer;
 
-import limiter.limiterqueueexample.service.StateService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -10,9 +9,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Component;
 import org.springframework.util.concurrent.ListenableFuture;
-import org.springframework.util.concurrent.ListenableFutureCallback;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
