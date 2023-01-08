@@ -48,8 +48,6 @@ In order to track the processing of the API, for this use case there is a file c
 
 8. Note: For the **Kafka resiliency** test, just stop the Kafka container with name "*kafka*" running on port `29092` and try starting it again, if there were messages sent to the Kafka broker that have not been consumed, the consumer will load balance and consume taking into account the last offset.
 
-9. In the `test.txt` file that is where the output of the sent requests is reflected, with all the main metrics of the API at that point of time, one can see the current sent requests to the queue will increase over time, and the polled requests will reach that number of the sent requests to queue. That last scenario will happen only if all the requests sent to the same Kafka broker are sent from the same instance of the limiter queue API. But if there are more instances sending messages to that queue, the scenario for those two metrics will be different for all the instances sending the messages. Same will happen if the instance is ran after a Kafka broker is started, and that Kafka broker already had messages in its topic. 
-
-10. 
+9. In the `test.txt` file that is where the output of the sent requests is reflected, with all the main metrics of the API at that point of time, one can see the current sent requests to the queue will increase over time, and the polled requests will reach that number of the sent requests to queue. That last scenario will happen only if all the requests sent to the same Kafka broker are sent from the same instance of the limiter queue API. But if there are more instances sending messages to that queue, the scenario for those two metrics will be different for all the instances sending the messages. Same will happen if the instance is ran after a Kafka broker is started, and that Kafka broker already had messages in its topic.
 
 Thank you!
