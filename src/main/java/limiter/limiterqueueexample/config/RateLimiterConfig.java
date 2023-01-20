@@ -30,6 +30,7 @@ public class RateLimiterConfig {
                 .timeoutDuration(Duration.ofMillis(timeoutDuration))
                 .build();
 
+
         RateLimiterRegistry rateLimiterRegistry = RateLimiterRegistry.of(config);
         return (AtomicRateLimiter) rateLimiterRegistry.rateLimiter("name2", config);
     }
